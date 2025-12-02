@@ -1,0 +1,237 @@
+import { prisma } from "../config/prismaClient.js";
+
+// ---------------------------
+// GET PAGINATED PRODUCT LIST
+// ---------------------------
+export async function listProducts(req, res) {
+  try {
+    const page = Number(req.query.page) || 1;
+    const limit = Number(req.query.limit) || 20;
+    const skip = (page - 1) * limit;
+    const q = req.query.q || "";
+    const min = req.query.min ? Number(req.query.min) : null;
+    const max = req.query.max ? Number(req.query.max) : null;
+    const categorySlug = req.query.category || "";
+
+    const sort = req.query.sort || "newest";
+
+    let orderBy = { id: "desc" }; // default newest
+
+    if (sort === "price_asc") orderBy = { price: "asc" };
+    if (sort === "price_desc") orderBy = { price: "desc" };
+
+    const filters = {
+      active: true
+    };
+
+    if (q) {
+      filters.title = {
+        contains: q,
+        mode: "insensitive"
+      };
+    }
+
+    if (min !== null || max !== null) {
+      filters.price = {
+        gte: min ?? 0,
+        lte: max ?? 999999
+      };
+    }
+
+    if (categorySlug) {
+      filters.category = {
+        slug: categorySlug
+      };
+    }
+
+    const products = await prisma.product.findMany({
+      where: filters,
+      include: { productImages: true, category: true },
+      skip,
+      take: limit,
+      orderBy
+    });
+
+    const total = await prisma.product.count({
+      where: filters
+    });
+
+    res.json({
+      page,
+      limit,
+      total,
+      pages: Math.ceil(total / limit),
+      products
+    });
+
+  } catch (err) {
+    console.error("listProducts error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+
+
+// ---------------------------
+// GET PRODUCT BY SLUG
+// ---------------------------
+export async function getProductBySlug(req, res) {
+  try {
+    const { slug } = req.params;
+
+    const product = await prisma.product.findUnique({
+      where: { slug },
+      include: { productImages: true, category: true }
+    });
+
+    if (!product)
+      return res.status(404).json({ message: "Product not found" });
+
+    res.json(product);
+
+  } catch (err) {
+    console.error("getProductBySlug error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+
+
+// ---------------------------
+// SEARCH PRODUCTS
+// ---------------------------
+export async function searchProducts(req, res) {
+  try {
+    const q = req.query.q || "";
+
+    const results = await prisma.product.findMany({
+      where: {
+        active: true,
+        title: {
+          contains: q,
+          mode: "insensitive"
+        }
+      },
+      include: { productImages: true, category: true },
+      take: 50
+    });
+
+    res.json(results);
+
+  } catch (err) {
+    console.error("searchProducts error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+
+
+// ---------------------------
+// FILTER PRODUCTS BY PRICE RANGE
+// ---------------------------
+export async function filterProducts(req, res) {
+  try {
+    const min = req.query.min ? Number(req.query.min) : 0;
+    const max = req.query.max ? Number(req.query.max) : 999999;
+
+    const results = await prisma.product.findMany({
+      where: {
+        active: true,
+        price: {
+          gte: min,
+          lte: max
+        }
+      },
+      include: { productImages: true, category: true }
+    });
+
+    res.json(results);
+
+  } catch (err) {
+    console.error("filterProducts error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+
+
+// ---------------------------
+// RELATED PRODUCTS
+// ---------------------------
+export async function getRelatedProducts(req, res) {
+  try {
+    const { id } = req.params;
+
+    const baseProduct = await prisma.product.findUnique({
+      where: { id: Number(id) }
+    });
+
+    if (!baseProduct)
+      return res.status(404).json({ message: "Product not found" });
+
+    const results = await prisma.product.findMany({
+      where: {
+        id: { not: baseProduct.id },
+        active: true,
+        price: {
+          gte: Number(baseProduct.price) - 200,
+          lte: Number(baseProduct.price) + 200
+        }
+      },
+      include: { productImages: true, category: true },
+      take: 6
+    });
+
+    res.json(results);
+
+  } catch (err) {
+    console.error("getRelatedProducts error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+
+
+// ---------------------------
+// CATEGORIES (PUBLIC)
+// ---------------------------
+export async function listCategories(req, res) {
+  try {
+    const categories = await prisma.category.findMany({
+      include: {
+        _count: { select: { products: true } }
+      },
+      orderBy: { name: "asc" }
+    });
+
+    res.json(categories);
+  } catch (err) {
+    console.error("listCategories error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+}
+
+export async function getCategoryWithProducts(req, res) {
+  try {
+    const { slug } = req.params;
+
+    const category = await prisma.category.findUnique({
+      where: { slug },
+      include: {
+        products: {
+          where: { active: true },
+          include: { productImages: true, category: true },
+          orderBy: { id: "desc" }
+        }
+      }
+    });
+
+    if (!category)
+      return res.status(404).json({ message: "Category not found" });
+
+    res.json(category);
+  } catch (err) {
+    console.error("getCategoryWithProducts error:", err);
+    res.status(500).json({ message: "Server error" });
+  }
+}

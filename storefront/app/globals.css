@@ -1,0 +1,79 @@
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --ink: #13110f;
+  --muted: #5a554e;
+  --surface: #fffaf3;
+  --card: #fffcf6;
+  --border: #e6ded0;
+  --accent: #d16a3a;
+  --accent-strong: #a94c24;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-lg: 22px;
+  --shadow-soft: 0 18px 48px rgba(19, 17, 15, 0.08);
+}
+
+body {
+  font-family: "DM Sans", system-ui, -apple-system, sans-serif;
+  background:
+    radial-gradient(120% 60% at 10% 10%, #fff6e6 0%, #f4eadb 32%, #ebe1d2 58%, #e7ddce 100%),
+    #f3e8da;
+  color: var(--ink);
+  letter-spacing: 0.012em;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, .font-display {
+  font-family: "Playfair Display", "DM Sans", serif;
+  letter-spacing: 0.005em;
+}
+
+::selection {
+  background: rgba(209, 106, 58, 0.18);
+  color: var(--ink);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 4vw, 1.75rem);
+}
+
+@media (min-width: 1280px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
+
+.glass-tile {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.92));
+  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(209, 106, 58, 0.15);
+}
