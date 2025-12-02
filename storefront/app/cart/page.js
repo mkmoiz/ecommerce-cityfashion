@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 import { API_BASE } from "@/utils/api";
 
 export default function CartPage() {
-  const { items, total, updateQuantity, removeItem, clear } = useCart();
+  const { items, total, updateQuantity, updateItemStock, removeItem, clear } = useCart();
   const { data: session, status } = useSession();
   const [address, setAddress] = useState(null);
   const [loadingAddress, setLoadingAddress] = useState(false);
@@ -35,6 +35,28 @@ export default function CartPage() {
     };
     fetchProfile();
   }, [status, session?.apiToken]);
+
+  const itemIds = items.map((i) => i.id).sort().join(",");
+
+  useEffect(() => {
+    if (!itemIds) return;
+    const fetchStocks = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/store/products?ids=${items.map((i) => i.id).join(",")}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        const products = data.products || [];
+
+        products.forEach((p) => {
+          updateItemStock(p.id, p.stock);
+        });
+      } catch (err) {
+        console.error("Failed to refresh stocks", err);
+      }
+    };
+    fetchStocks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [itemIds]);
 
   const shippingProgress = Math.min((total / 999) * 100, 100);
   const quantityOptions = Array.from({ length: 10 }, (_, i) => i + 1);
@@ -167,23 +189,29 @@ export default function CartPage() {
                   </div>
 
                   <div className="flex flex-col gap-2 sm:justify-center">
-                    <label className="text-xs font-semibold text-[var(--muted)]">
-                      Qty
-                      <select
-                        value={item.quantity || 1}
-                        onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
-                        className="mt-1 w-28 rounded-[var(--radius-sm)] border border-[var(--border)] bg-white px-2 py-2 text-sm text-[var(--ink)] shadow-sm focus:border-[var(--ink)] focus:outline-none"
-                      >
-                        {quantityOptions.map((n) => (
-                          <option key={n} value={n}>
-                            {n}
-                          </option>
-                        ))}
-                        {(item.quantity || 1) > quantityOptions.length && (
-                          <option value={item.quantity || 1}>{item.quantity}</option>
-                        )}
-                      </select>
-                    </label>
+                    {item.stock === 0 ? (
+                      <span className="inline-flex items-center justify-center rounded-md bg-red-50 px-2 py-1 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/10">
+                        Out of Stock
+                      </span>
+                    ) : (
+                      <label className="text-xs font-semibold text-[var(--muted)]">
+                        Qty
+                        <select
+                          value={item.quantity || 1}
+                          onChange={(e) => updateQuantity(item.id, Number(e.target.value))}
+                          className="mt-1 w-28 rounded-[var(--radius-sm)] border border-[var(--border)] bg-white px-2 py-2 text-sm text-[var(--ink)] shadow-sm focus:border-[var(--ink)] focus:outline-none"
+                        >
+                          {Array.from({ length: Math.min(10, item.stock !== undefined ? item.stock : 10) }, (_, i) => i + 1).map((n) => (
+                            <option key={n} value={n}>
+                              {n}
+                            </option>
+                          ))}
+                          {(item.quantity || 1) > Math.min(10, item.stock !== undefined ? item.stock : 10) && (
+                            <option value={item.quantity || 1}>{item.quantity}</option>
+                          )}
+                        </select>
+                      </label>
+                    )}
                     <div className="flex flex-wrap gap-3 text-xs font-semibold text-[var(--muted)]">
                       <button
                         className="hover:text-[var(--ink)]"
