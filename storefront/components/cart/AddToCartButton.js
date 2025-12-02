@@ -12,25 +12,33 @@ export default function AddToCartButton({ product }) {
     if (!product) return;
     setAdding(true);
     try {
-      addItem(product, 1);
-      openDrawer();
-      setAdded(true);
-      setTimeout(() => setAdded(false), 1500);
+      const success = addItem(product, 1);
+      if (success) {
+        openDrawer();
+        setAdded(true);
+        setTimeout(() => setAdded(false), 1500);
+      }
     } finally {
       setAdding(false);
     }
   };
+
+  const isOutOfStock = product?.stock === 0;
 
   return (
     <button
       type="button"
       onClick={handleAdd}
       className={`rounded-full px-6 py-3 text-white shadow transition hover:-translate-y-0.5 hover:shadow-lg ${
-        added ? "bg-emerald-600" : "bg-[var(--accent)] hover:bg-[var(--accent-strong)]"
+        isOutOfStock
+          ? "cursor-not-allowed bg-gray-400 opacity-80"
+          : added
+          ? "bg-emerald-600"
+          : "bg-[var(--accent)] hover:bg-[var(--accent-strong)]"
       }`}
-      disabled={adding}
+      disabled={adding || isOutOfStock}
     >
-      {added ? "Added" : adding ? "Adding..." : "Add to Cart"}
+      {isOutOfStock ? "Out of Stock" : added ? "Added" : adding ? "Adding..." : "Add to Cart"}
     </button>
   );
 }

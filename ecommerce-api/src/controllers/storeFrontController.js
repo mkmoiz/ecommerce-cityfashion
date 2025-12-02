@@ -44,6 +44,16 @@ export async function listProducts(req, res) {
       };
     }
 
+    if (req.query.ids) {
+      const ids = req.query.ids
+        .split(",")
+        .map((id) => Number(id.trim()))
+        .filter((id) => !isNaN(id));
+      if (ids.length > 0) {
+        filters.id = { in: ids };
+      }
+    }
+
     const products = await prisma.product.findMany({
       where: filters,
       include: { productImages: true, category: true },
