@@ -50,28 +50,46 @@ export async function createOrder(req, res) {
 
     const address = buildAddressSnapshot(user, req.body || {});
 
-    const order = await prisma.order.create({
-      data: {
-        userId: req.user.id,
-        totalAmount: total,
-        status: paymentId ? "PAID" : "PENDING",
-        paymentId,
-        razorpayOrderId,
-        razorpaySignature,
-        paymentMethod,
-        ...address,
-        items: {
-          create: orderItemsData
+    const order = await prisma.$transaction(async (tx) => {
+      // 1. Decrement stock for each item
+      for (const item of orderItemsData) {
+        try {
+          await tx.product.update({
+            where: { id: item.productId, stock: { gte: item.quantity } },
+            data: { stock: { decrement: item.quantity } }
+          });
+        } catch (err) {
+          throw new Error(`Insufficient stock for product ID ${item.productId}`);
         }
-      },
-      include: {
-        items: true
       }
+
+      // 2. Create the order
+      return tx.order.create({
+        data: {
+          userId: req.user.id,
+          totalAmount: total,
+          status: paymentId ? "PAID" : "PENDING",
+          paymentId,
+          razorpayOrderId,
+          razorpaySignature,
+          paymentMethod,
+          ...address,
+          items: {
+            create: orderItemsData
+          }
+        },
+        include: {
+          items: true
+        }
+      });
     });
 
     res.json(order);
   } catch (err) {
     console.error("createOrder error:", err);
+    if (err.message.includes("Insufficient stock")) {
+      return res.status(400).json({ message: err.message });
+    }
     res.status(500).json({ message: "Failed to create order" });
   }
 }
