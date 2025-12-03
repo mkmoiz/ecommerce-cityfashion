@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Toaster } from "react-hot-toast";
 import NavBar from "@/components/NavBar";
 import RootProviders from "@/components/CartProvider";
 import "./globals.css";
@@ -12,6 +13,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body className="min-h-screen flex flex-col">
+        <Toaster position="bottom-right" />
         <RootProviders>
           <NavBar />
           <main className="container flex-1 pt-16 pb-12 space-y-10">{children}</main>

@@ -32,7 +32,7 @@ model Product {
   title       String
   slug        String   @unique
   description String?
-  price       Decimal  @db.Decimal(10, 2)
+  price       Decimal
   stock       Int      @default(0)
   active      Boolean  @default(true)
   createdAt   DateTime @default(now())
@@ -55,7 +55,7 @@ model Order {
   id          Int         @id @default(autoincrement())
   user        User        @relation(fields: [userId], references: [id])
   userId      Int
-  totalAmount Decimal     @db.Decimal(10, 2)
+  totalAmount Decimal
   status      OrderStatus @default(PENDING)
   paymentId   String?
   razorpayOrderId String?
@@ -81,7 +81,7 @@ model OrderItem {
   product   Product @relation(fields: [productId], references: [id])
   productId Int
   quantity  Int
-  price     Decimal @db.Decimal(10, 2)
+  price     Decimal
 }
 
 model Category {
@@ -106,4 +106,25 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+}
+
+model HeroSlide {
+  id        Int      @id @default(autoincrement())
+  title     String
+  subtitle  String?
+  image     String
+  badge     String?
+  caption   String?
+
+  cta1Label String?
+  cta1Href  String?
+  cta2Label String?
+  cta2Href  String?
+
+  tags      String?
+
+  sortOrder Int      @default(0)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

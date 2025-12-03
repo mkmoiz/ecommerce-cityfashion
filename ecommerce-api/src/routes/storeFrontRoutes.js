@@ -8,8 +8,11 @@ import {
   listCategories,
   getCategoryWithProducts
 } from "../controllers/storeFrontController.js";
+import { listSlides } from "../controllers/heroController.js";
 
 const router = Router();
+
+router.get("/hero", listSlides);
 
 router.get("/products", listProducts);
 router.get("/products/search", searchProducts);

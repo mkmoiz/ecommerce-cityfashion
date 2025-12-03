@@ -25,47 +25,66 @@ export default async function HomePage({ searchParams: searchParamsPromise }) {
   const categories = await apiGet("/store/categories");
   const products = data.products || [];
   const pages = Math.max(data.pages || 1, 1);
-  const heroSlides = [
-    {
-      badge: "New Season",
-      title: "Signature silhouettes made for the city.",
-      subtitle: "Layerable textures, sculpted tailoring, and bold accessories that turn every street into a runway.",
-      image:
-        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1400&q=80",
-      caption: "City Capsule '24",
-      tags: ["Tailored", "Monochrome", "Layer-ready"],
-      ctas: [
-        { label: "Shop capsule", href: "/products?sort=newest", variant: "primary" },
-        { label: "View lookbook", href: "/categories" }
-      ]
-    },
-    {
-      badge: "Limited drop",
-      title: "Evening edit with luminous details.",
-      subtitle: "Draped silhouettes, metallic accents, and statement jewelry curated for after-hours.",
-      image:
-        "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1400&q=80",
-      caption: "Evening Stories",
-      tags: ["Metallic", "Occasion", "Luxe trims"],
-      ctas: [
-        { label: "Shop evening", href: "/products?sort=price_desc", variant: "primary" },
-        { label: "Gifting picks", href: "/products?min=999&max=2999" }
-      ]
-    },
-    {
-      badge: "Editor’s pick",
-      title: "Weekend ease with artisan craft.",
-      subtitle: "Soft knits, breathable linens, and handcrafted accents designed for slow days.",
-      image:
-        "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1400&q=80&sat=-30",
-      caption: "Weekend Lines",
-      tags: ["Handmade", "Linen", "Relaxed"],
-      ctas: [
-        { label: "Shop relaxed", href: "/products?sort=newest", variant: "primary" },
-        { label: "All categories", href: "/categories" }
-      ]
-    }
-  ];
+  const heroData = await apiGet("/store/hero").catch(() => []);
+  let heroSlides = heroData.map((s) => ({
+    badge: s.badge,
+    title: s.title,
+    subtitle: s.subtitle,
+    image: s.image,
+    caption: s.caption,
+    tags: s.tags ? s.tags.split(",").map((t) => t.trim()) : [],
+    ctas: [
+      s.cta1Label && { label: s.cta1Label, href: s.cta1Href, variant: "primary" },
+      s.cta2Label && { label: s.cta2Label, href: s.cta2Href }
+    ].filter(Boolean)
+  }));
+
+  if (heroSlides.length === 0) {
+    heroSlides = [
+      {
+        badge: "New Season",
+        title: "Signature silhouettes made for the city.",
+        subtitle:
+          "Layerable textures, sculpted tailoring, and bold accessories that turn every street into a runway.",
+        image:
+          "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?auto=format&fit=crop&w=1400&q=80",
+        caption: "City Capsule '24",
+        tags: ["Tailored", "Monochrome", "Layer-ready"],
+        ctas: [
+          { label: "Shop capsule", href: "/products?sort=newest", variant: "primary" },
+          { label: "View lookbook", href: "/categories" }
+        ]
+      },
+      {
+        badge: "Limited drop",
+        title: "Evening edit with luminous details.",
+        subtitle:
+          "Draped silhouettes, metallic accents, and statement jewelry curated for after-hours.",
+        image:
+          "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1400&q=80",
+        caption: "Evening Stories",
+        tags: ["Metallic", "Occasion", "Luxe trims"],
+        ctas: [
+          { label: "Shop evening", href: "/products?sort=price_desc", variant: "primary" },
+          { label: "Gifting picks", href: "/products?min=999&max=2999" }
+        ]
+      },
+      {
+        badge: "Editor’s pick",
+        title: "Weekend ease with artisan craft.",
+        subtitle:
+          "Soft knits, breathable linens, and handcrafted accents designed for slow days.",
+        image:
+          "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=1400&q=80&sat=-30",
+        caption: "Weekend Lines",
+        tags: ["Handmade", "Linen", "Relaxed"],
+        ctas: [
+          { label: "Shop relaxed", href: "/products?sort=newest", variant: "primary" },
+          { label: "All categories", href: "/categories" }
+        ]
+      }
+    ];
+  }
 
   return (
     <div className="mt-8 space-y-12">

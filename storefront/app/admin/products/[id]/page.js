@@ -37,6 +37,12 @@ export default async function AdminProductDetailPage({ params: paramsPromise }) 
           <Link href="/admin/products" className="text-sm text-slate-600 hover:text-black">
             ← Back to products
           </Link>
+          <Link
+            href={`/admin/products/${params.id}/edit`}
+            className="rounded-full border border-slate-200 bg-white px-3 py-1 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          >
+            Edit
+          </Link>
           <form action={deleteProduct.bind(null, params.id)}>
             <button
               type="submit"
