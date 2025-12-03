@@ -26,15 +26,8 @@ export default function AdminLoginForm() {
         const text = await res.text();
         throw new Error(text || "Login failed");
       }
-      const data = await res.json();
-      if (data.token) {
-        try {
-          window.localStorage.setItem("admin_token", data.token);
-          document.cookie = `admin_token=${data.token}; path=/; max-age=${60 * 60 * 24 * 7};`;
-        } catch (err) {
-          console.error("Failed to persist admin token", err);
-        }
-      }
+      // Cookie is set by the backend via proxy (HttpOnly)
+      await res.json();
       router.push("/admin");
     } catch (err) {
       setError(err.message || "Login failed");
