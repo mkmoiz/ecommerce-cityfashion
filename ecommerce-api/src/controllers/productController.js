@@ -104,14 +104,24 @@ export async function getProductBySlug(req, res) {
 export async function updateProduct(req, res) {
   try {
     const { id } = req.params;
-    const data = req.body;
+    const { images, ...data } = req.body;
+
     if (data.categoryId) {
       data.categoryId = Number(data.categoryId);
     }
 
+    const updateData = { ...data };
+
+    if (Array.isArray(images)) {
+      updateData.productImages = {
+        deleteMany: {},
+        create: images.map((url) => ({ url }))
+      };
+    }
+
     const product = await prisma.product.update({
       where: { id: Number(id) },
-      data,
+      data: updateData,
       include: { productImages: true, category: true }
     });
 

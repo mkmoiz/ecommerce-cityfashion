@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { toast } from "react-hot-toast";
 
 const CartContext = createContext(null);
 
@@ -54,7 +55,7 @@ export function CartProvider({ children }) {
     const currentQty = existing ? (existing.quantity || 1) : 0;
 
     if (currentQty + quantity > stock) {
-      alert(`Cannot add more items. Only ${stock} left in stock.`);
+      toast.error(`Cannot add more items. Only ${stock} left in stock.`);
       return false;
     }
 
@@ -87,7 +88,7 @@ export function CartProvider({ children }) {
   const updateQuantity = (id, quantity) => {
     const item = items.find((i) => i.id === id);
     if (item && item.stock !== undefined && quantity > item.stock) {
-      alert(`Cannot update quantity. Only ${item.stock} left in stock.`);
+      toast.error(`Cannot update quantity. Only ${item.stock} left in stock.`);
       quantity = item.stock;
     }
 
