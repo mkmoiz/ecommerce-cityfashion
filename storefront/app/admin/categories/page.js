@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
+import { revalidatePath } from "next/cache";
 import { adminGet, adminPost } from "@/utils/adminApi";
 
 export default async function AdminCategoriesPage() {
@@ -80,8 +81,8 @@ export default async function AdminCategoriesPage() {
   );
 }
 
-function CategoryForm() {
-  async function createCategory(formData, token) {
+function CategoryForm({ token }) {
+  async function createCategory(token, formData) {
     "use server";
 
     const name = formData.get("name")?.toString().trim();
@@ -93,6 +94,7 @@ function CategoryForm() {
 
     try {
       await adminPost("/admin/categories", { name, description }, token);
+      revalidatePath("/admin/categories");
       return { success: true };
     } catch (err) {
       return { error: err.message || "Failed to create category" };
@@ -100,7 +102,7 @@ function CategoryForm() {
   }
 
   return (
-    <form action={createCategory} className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+    <form action={createCategory.bind(null, token)} className="space-y-3 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
       <h2 className="text-lg font-semibold">Add category</h2>
       <div className="grid gap-3 md:grid-cols-[2fr_3fr]">
         <label className="space-y-1 text-sm font-medium text-slate-700">

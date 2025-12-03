@@ -21,6 +21,13 @@ import {
   updateCategory,
   deleteCategory
 } from "../controllers/categoryController.js";
+import {
+  getAdminSlides,
+  getSlideById,
+  createSlide,
+  updateSlide,
+  deleteSlide
+} from "../controllers/heroController.js";
 
 const router = Router();
 
@@ -52,5 +59,12 @@ router.get("/categories/:id", authRequired, adminOnly, getCategoryById);
 router.post("/categories", authRequired, adminOnly, createCategory);
 router.put("/categories/:id", authRequired, adminOnly, updateCategory);
 router.delete("/categories/:id", authRequired, adminOnly, deleteCategory);
+
+// Hero Slides
+router.get("/hero", authRequired, adminOnly, getAdminSlides);
+router.get("/hero/:id", authRequired, adminOnly, getSlideById);
+router.post("/hero", authRequired, adminOnly, createSlide);
+router.put("/hero/:id", authRequired, adminOnly, updateSlide);
+router.delete("/hero/:id", authRequired, adminOnly, deleteSlide);
 
 export default router;

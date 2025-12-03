@@ -2,10 +2,6 @@ import { API_BASE } from "./api";
 
 function resolveToken(explicitToken) {
   if (explicitToken) return explicitToken;
-  if (typeof window !== "undefined") {
-    const localToken = window.localStorage.getItem("admin_token");
-    if (localToken) return localToken;
-  }
   return "";
 }
 
