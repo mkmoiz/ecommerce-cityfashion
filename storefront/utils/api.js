@@ -1,4 +1,4 @@
-export const API_BASE = "http://localhost:4000";
+export const API_BASE = typeof window === "undefined" ? "http://localhost:4000" : "/api/backend";
 
 export async function apiGet(route) {
   const url = `${API_BASE}${route}`;

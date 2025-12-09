@@ -128,6 +128,24 @@ export default function NavBar() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <div className="relative hidden md:block group">
+            <button className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-white/10 text-white/70 hover:text-white transition">
+               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            </button>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-0 overflow-hidden group-hover:w-[200px] group-focus-within:w-[200px] transition-all duration-300 ease-in-out bg-[#0b0b10] z-20">
+               <form action="/search" method="GET" className="flex items-center border border-white/20 rounded-full bg-white/5 pr-2">
+                 <input
+                    name="q"
+                    type="text"
+                    placeholder="Search..."
+                    className="w-full bg-transparent border-none py-1.5 pl-3 text-sm text-white focus:ring-0 placeholder:text-white/30"
+                 />
+               </form>
+            </div>
+          </div>
+          <Link href="/search" className="md:hidden text-white/70">
+             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          </Link>
           <CartBadge />
           {status === "authenticated" ? (
             <div className="flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-2 py-1 shadow-sm">
