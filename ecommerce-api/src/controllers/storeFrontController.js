@@ -44,6 +44,10 @@ export async function listProducts(req, res) {
       };
     }
 
+    if (req.query.in_stock === "true") {
+      filters.stock = { gt: 0 };
+    }
+
     if (req.query.ids) {
       const ids = req.query.ids
         .split(",")
