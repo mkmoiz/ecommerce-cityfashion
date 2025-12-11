@@ -26,8 +26,7 @@ export async function listProducts(req, res) {
 
     if (q) {
       filters.title = {
-        contains: q,
-        mode: "insensitive"
+        contains: q
       };
     }
 
@@ -80,7 +79,7 @@ export async function listProducts(req, res) {
 
   } catch (err) {
     console.error("listProducts error:", err);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Server error", error: err.message });
   }
 }
 
@@ -122,8 +121,7 @@ export async function searchProducts(req, res) {
       where: {
         active: true,
         title: {
-          contains: q,
-          mode: "insensitive"
+          contains: q
         }
       },
       include: { productImages: true, category: true },

@@ -122,7 +122,7 @@ function SearchContent() {
                 <>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
                         {products.map((product) => (
-                            <Link key={product.id} href={`/products/${product.slug}`} className="group block">
+                            <Link key={product.id} href={`/product/${product.slug}`} className="group block">
                                 <div className="aspect-[3/4] w-full overflow-hidden rounded bg-white/5 relative">
                                     {product.productImages?.[0]?.url ? (
                                         <img
